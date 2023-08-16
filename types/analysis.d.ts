@@ -1,5 +1,5 @@
 declare namespace Analyser {
-  type treeObjectNode = {
+  type treeObjectNodeList = {
     dependencies: object
     devDependencies: object
     version: string
