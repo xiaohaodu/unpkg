@@ -53,14 +53,25 @@ class analysis {
         pkgSplitList,
         dependencies[key],
       ) as Analyser.treeObjectNodeList
+      const map = new Map()
+        .set('dependencies', unpkg.dependencies)
+        .set('devDependencies', unpkg.devDependencies)
+        .set('devDependencyTree', new Map())
+        .set('dependencyTree', new Map())
       dependencyTree.set(
         {
           key: key,
           value: dependencies[key],
         },
-        new Map()
-          .set('dependencies', unpkg.dependencies)
-          .set('devDependencies', unpkg.devDependencies),
+        map,
+      )
+      this.unpkg_dependencies(
+        map.get('dependencyTree'),
+        map.get('dependencies'),
+      )
+      this.unpkg_dependencies(
+        map.get('devDependencyTree'),
+        map.get('devDependencies'),
       )
     }
     console.log(dependencyTree)
