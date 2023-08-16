@@ -43,9 +43,9 @@ class analysis {
     dependencyTree: Analyser.treeMapNode = this.analysisTreeMapStore.get(
       'dependencyTree',
     ) as Analyser.treeMapNode,
-    dependencies: object = this.analysisTreeMapStore.get(
+    dependencies: Analyser.treeObjectNode = this.analysisTreeMapStore.get(
       'dependencies',
-    ) as object,
+    ) as Analyser.treeObjectNode,
   ): void {
     for (const key in dependencies) {
       const pkgSplitList = key.split('/')
@@ -86,13 +86,15 @@ class analysis {
   public unpkg_node_modules(): void {
     this.unpkg_dependencies(
       this.analysisTreeMapStore.get('dependencyTree') as Analyser.treeMapNode,
-      this.analysisTreeMapStore.get('dependencies'),
+      this.analysisTreeMapStore.get('dependencies') as Analyser.treeObjectNode,
     )
     this.unpkg_dependencies(
       this.analysisTreeMapStore.get(
         'devDependencyTree',
       ) as Analyser.treeMapNode,
-      this.analysisTreeMapStore.get('devDependencies'),
+      this.analysisTreeMapStore.get(
+        'devDependencies',
+      ) as Analyser.treeObjectNode,
     )
   }
   public versionMatch(pkgVersion: string, version: string): boolean {
