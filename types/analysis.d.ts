@@ -9,4 +9,5 @@ declare namespace Analyser {
   type treeObjectNode = {
     [key: string]: string
   }
+  type foundMapStore = Map<string, string>
 }
