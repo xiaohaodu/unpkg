@@ -60,6 +60,7 @@ class analysis {
   public unpkg_dependencies(
     dependencyTree: Analyser.treeMapNode,
     dependencies: Analyser.treeObjectNode,
+    fullPath?: Analyser.treeMapFullPath,
   ): void {
     for (const key in dependencies) {
       const pkgSplitList = key.split('/')
@@ -69,24 +70,36 @@ class analysis {
         dependencies[key],
       )
       if (!unpkg) {
-        console.log('unpkg', pkgSplitList, dependencies[key], key, unpkg)
+        console.log(
+          'unpkg',
+          pkgSplitList,
+          fullPath,
+          dependencies[key],
+          key,
+          unpkg,
+        )
         continue
       }
-
       const map = new Map()
         .set('dependencies', unpkg.dependencies)
         .set('dependencyTree', new Map())
-      dependencyTree.set(
-        {
-          key: key,
-          value: dependencies[key],
-        },
-        map,
-      )
+      const parentNode = {
+        key: key,
+        value: dependencies[key],
+      }
+      const currentFullPath = {
+        versionMap: (fullPath?.versionMap || new Map()).set(
+          key,
+          dependencies[key],
+        ),
+        fullPath: (fullPath?.fullPath || '.') + '/' + key,
+      }
+      dependencyTree.set(parentNode, map)
       this.foundMapStore.set(key, dependencies[key])
       this.unpkg_dependencies(
         map.get('dependencyTree'),
         map.get('dependencies'),
+        currentFullPath,
       )
     }
   }
@@ -126,14 +139,6 @@ class analysis {
       this.analysisTreeMapStore.get('dependencyTree') as Analyser.treeMapNode,
       this.analysisTreeMapStore.get('dependencies') as Analyser.treeObjectNode,
     )
-    // this.unpkg_dependencies(
-    //   this.analysisTreeMapStore.get(
-    //     'devDependencyTree',
-    //   ) as Analyser.treeMapNode,
-    //   this.analysisTreeMapStore.get(
-    //     'devDependencies',
-    //   ) as Analyser.treeObjectNode,
-    // )
     console.log(this.analysisTreeMapStore.get('dependencyTree'))
   }
   /**
@@ -153,10 +158,11 @@ class analysis {
     if (compareVersion(version, versionMatch)) {
       return true
     }
+
     return false
     /**
-     * @param version1 从dependencies/devDependencies 中取出的版本限制 例如：^0.2.0
-     * @param version2 找到的npm包的package.json显示版本
+     * @param version1 找到的npm包的package.json显示版本 例如：1.2.1
+     * @param version2 从dependencies/devDependencies 中取出的版本限制 例如：^1.1.13
      * @returns boolean
      * @description 判断version1是否大于等于version2
      */
@@ -164,7 +170,9 @@ class analysis {
       const version11 = version1.split('.').map((value) => parseInt(value))
       const version22 = version2.split('.').map((value) => parseInt(value))
       for (const i in version11) {
-        if (version11[i] < version22[i]) {
+        if (version22[i] < version11[i]) {
+          return true
+        } else if (version22[i] > version11[i]) {
           return false
         }
       }

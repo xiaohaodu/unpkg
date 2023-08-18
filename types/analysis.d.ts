@@ -9,5 +9,9 @@ declare namespace Analyser {
   type treeObjectNode = {
     [key: string]: string
   }
+  type treeMapFullPath = {
+    versionMap: Map<string, string>
+    fullPath: string
+  }
   type foundMapStore = Map<string, string>
 }
