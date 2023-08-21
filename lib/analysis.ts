@@ -180,9 +180,17 @@ class analysis {
    * @description 全局解包函数,封装了所有操作
    */
   public unpkg_node_modules(): void {
+    // this.unpkg_dependencies(
+    //   this.analysisTreeMapStore.get('dependencyTree') as Analyser.treeMapNode,
+    //   this.analysisTreeMapStore.get('dependencies') as Analyser.treeObjectNode,
+    // )
     this.unpkg_dependencies(
-      this.analysisTreeMapStore.get('dependencyTree') as Analyser.treeMapNode,
-      this.analysisTreeMapStore.get('dependencies') as Analyser.treeObjectNode,
+      this.analysisTreeMapStore.get(
+        'devDependencyTree',
+      ) as Analyser.treeMapNode,
+      this.analysisTreeMapStore.get(
+        'devDependencies',
+      ) as Analyser.treeObjectNode,
     )
     // console.log(this.analysisTreeMapStore.get('dependencyTree'))
   }
