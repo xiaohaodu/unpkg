@@ -68,6 +68,7 @@ class analysis {
       const unpkg = this.unpkg_node_modules_head(
         pkgSplitList,
         dependencies[key],
+        fullPath?.fullPath || '',
       )
       if (!unpkg) {
         console.log(
@@ -112,23 +113,67 @@ class analysis {
   public unpkg_node_modules_head(
     dependencyKey: Array<string>,
     dependencyVersion: string,
-  ): Analyser.treeObjectNodeList | void {
-    if (!fs.existsSync(path.join(this.root, 'node_modules'))) return
-    const dirFiles = fs.readdirSync(path.join(this.root, 'node_modules'), {
-      encoding: option.encoding,
-      withFileTypes: true,
-    })
-    for (const dirent of dirFiles) {
-      if (dirent.name === dependencyKey[0]) {
-        const unpkg = this.unpkg(path.join(dirent.path, dirent.name))
-        if (!unpkg) {
-          continue
-        }
-        const flag = this.versionMatch(dependencyVersion, unpkg.version)
-        if (flag) {
-          return unpkg
+    fullPath: string,
+  ): Analyser.treeObjectNodeList | null {
+    if (!fullPath || fullPath === '.') {
+      if (!fs.existsSync(path.join(this.root, 'node_modules'))) {
+        return null
+      }
+      const dirFiles = fs.readdirSync(path.join(this.root, 'node_modules'), {
+        encoding: option.encoding,
+        withFileTypes: true,
+      })
+      for (const dirent of dirFiles) {
+        if (dirent.name === dependencyKey[0]) {
+          const unpkg = this.unpkg(path.join(dirent.path, dirent.name))
+          if (!unpkg) {
+            continue
+          }
+          const flag = this.versionMatch(dependencyVersion, unpkg.version)
+          if (flag) {
+            return unpkg
+          }
         }
       }
+      return null
+    } else {
+      const fullPathList = fullPath.split('/')
+      const searchPath = fullPathList.pop() || ''
+      if (
+        !fs.existsSync(
+          path.join(this.root, 'node_modules', searchPath, 'node_modules'),
+        )
+      ) {
+        return this.unpkg_node_modules_head(
+          dependencyKey,
+          dependencyVersion,
+          fullPathList.join('/'),
+        )
+      }
+      const dirFiles = fs.readdirSync(
+        path.join(this.root, 'node_modules', searchPath, 'node_modules'),
+        {
+          encoding: option.encoding,
+          withFileTypes: true,
+        },
+      )
+      for (const dirent of dirFiles) {
+        if (dirent.name === dependencyKey[0]) {
+          const unpkg = this.unpkg(path.join(dirent.path, dirent.name))
+          if (!unpkg) {
+            continue
+          }
+          const flag = this.versionMatch(dependencyVersion, unpkg.version)
+          if (flag) {
+            return unpkg
+          }
+        }
+      }
+      return this.unpkg_node_modules_head(
+        dependencyKey,
+        dependencyVersion,
+        fullPathList.join('/'),
+      )
     }
   }
   /**
@@ -139,7 +184,7 @@ class analysis {
       this.analysisTreeMapStore.get('dependencyTree') as Analyser.treeMapNode,
       this.analysisTreeMapStore.get('dependencies') as Analyser.treeObjectNode,
     )
-    console.log(this.analysisTreeMapStore.get('dependencyTree'))
+    // console.log(this.analysisTreeMapStore.get('dependencyTree'))
   }
   /**
    *
