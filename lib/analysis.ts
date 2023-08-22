@@ -1,6 +1,7 @@
-import fs from 'fs'
-import path from 'path'
+import * as fs from 'fs'
+import * as path from 'path'
 import option from './option'
+import * as semver from 'semver'
 /**
  * @description npm包分析对象，目前支持解析通过npm install命令下载的node_modules
  */
@@ -36,9 +37,9 @@ class analysis {
    * @param dirPath package.json 文件路径
    * @returns Analyser.treeObjectNodeList
    */
-  public unpkg(dirPath: string): Analyser.treeObjectNodeList | void {
+  public unpkg(dirPath: string): Analyser.treeObjectNodeList | null {
     if (!fs.existsSync(path.join(dirPath, 'package.json'))) {
-      return
+      return null
     }
     const data = fs.readFileSync(path.join(dirPath, 'package.json'), {
       encoding: option.encoding,
@@ -63,22 +64,13 @@ class analysis {
     fullPath?: Analyser.treeMapFullPath,
   ): void {
     for (const key in dependencies) {
-      const pkgSplitList = key.split('/')
       if (this.foundMapStore.has(key)) continue
       const unpkg = this.unpkg_node_modules_head(
-        pkgSplitList,
+        key,
         dependencies[key],
         fullPath?.fullPath || '',
       )
       if (!unpkg) {
-        console.log(
-          'unpkg',
-          pkgSplitList,
-          fullPath,
-          dependencies[key],
-          key,
-          unpkg,
-        )
         continue
       }
       const map = new Map()
@@ -111,37 +103,43 @@ class analysis {
    * @returns
    */
   public unpkg_node_modules_head(
-    dependencyKey: Array<string>,
+    dependencyKey: string,
     dependencyVersion: string,
     fullPath: string,
   ): Analyser.treeObjectNodeList | null {
     if (!fullPath || fullPath === '.') {
-      if (!fs.existsSync(path.join(this.root, 'node_modules'))) {
+      if (!fs.existsSync(path.join(this.root, 'node_modules', dependencyKey))) {
         return null
       }
-      const dirFiles = fs.readdirSync(path.join(this.root, 'node_modules'), {
-        encoding: option.encoding,
-        withFileTypes: true,
-      })
-      for (const dirent of dirFiles) {
-        if (dirent.name === dependencyKey[0]) {
-          const unpkg = this.unpkg(path.join(dirent.path, dirent.name))
-          if (!unpkg) {
-            continue
-          }
-          const flag = this.versionMatch(dependencyVersion, unpkg.version)
-          if (flag) {
-            return unpkg
-          }
-        }
+      const unpkg = this.unpkg(
+        path.join(this.root, 'node_modules', dependencyKey),
+      )
+      if (!unpkg) {
+        return null
+      }
+      const flag = this.versionMatch(dependencyVersion, unpkg.version)
+      if (flag) {
+        return unpkg
       }
       return null
     } else {
       const fullPathList = fullPath.split('/')
+      for (let i = 0; i < fullPathList.length; i++) {
+        if (fullPathList[i][0] === '@') {
+          fullPathList[i] += '/' + fullPathList[i + 1]
+          fullPathList.splice(i + 1, 1)
+        }
+      }
       const searchPath = fullPathList.pop() || ''
       if (
         !fs.existsSync(
-          path.join(this.root, 'node_modules', searchPath, 'node_modules'),
+          path.join(
+            this.root,
+            'node_modules',
+            searchPath,
+            'node_modules',
+            dependencyKey,
+          ),
         )
       ) {
         return this.unpkg_node_modules_head(
@@ -150,24 +148,25 @@ class analysis {
           fullPathList.join('/'),
         )
       }
-      const dirFiles = fs.readdirSync(
-        path.join(this.root, 'node_modules', searchPath, 'node_modules'),
-        {
-          encoding: option.encoding,
-          withFileTypes: true,
-        },
+      const unpkg = this.unpkg(
+        path.join(
+          this.root,
+          'node_modules',
+          searchPath,
+          'node_modules',
+          dependencyKey,
+        ),
       )
-      for (const dirent of dirFiles) {
-        if (dirent.name === dependencyKey[0]) {
-          const unpkg = this.unpkg(path.join(dirent.path, dirent.name))
-          if (!unpkg) {
-            continue
-          }
-          const flag = this.versionMatch(dependencyVersion, unpkg.version)
-          if (flag) {
-            return unpkg
-          }
-        }
+      if (!unpkg) {
+        return this.unpkg_node_modules_head(
+          dependencyKey,
+          dependencyVersion,
+          fullPathList.join('/'),
+        )
+      }
+      const flag = this.versionMatch(dependencyVersion, unpkg.version)
+      if (flag) {
+        return unpkg
       }
       return this.unpkg_node_modules_head(
         dependencyKey,
@@ -180,10 +179,10 @@ class analysis {
    * @description 全局解包函数,封装了所有操作
    */
   public unpkg_node_modules(): void {
-    // this.unpkg_dependencies(
-    //   this.analysisTreeMapStore.get('dependencyTree') as Analyser.treeMapNode,
-    //   this.analysisTreeMapStore.get('dependencies') as Analyser.treeObjectNode,
-    // )
+    this.unpkg_dependencies(
+      this.analysisTreeMapStore.get('dependencyTree') as Analyser.treeMapNode,
+      this.analysisTreeMapStore.get('dependencies') as Analyser.treeObjectNode,
+    )
     this.unpkg_dependencies(
       this.analysisTreeMapStore.get(
         'devDependencyTree',
@@ -192,7 +191,6 @@ class analysis {
         'devDependencies',
       ) as Analyser.treeObjectNode,
     )
-    // console.log(this.analysisTreeMapStore.get('dependencyTree'))
   }
   /**
    *
@@ -201,36 +199,7 @@ class analysis {
    * @returns version是否符合pkgVersion的限制
    */
   public versionMatch(pkgVersion: string, version: string): boolean {
-    const versionReg = /[1-9]?\d(\.([1-9]?\d)){2}/
-    const temp = pkgVersion.match(versionReg)
-    if (!temp) {
-      console.warn(pkgVersion, version)
-      return false
-    }
-    const versionMatch = temp[0]
-    if (compareVersion(version, versionMatch)) {
-      return true
-    }
-
-    return false
-    /**
-     * @param version1 找到的npm包的package.json显示版本 例如：1.2.1
-     * @param version2 从dependencies/devDependencies 中取出的版本限制 例如：^1.1.13
-     * @returns boolean
-     * @description 判断version1是否大于等于version2
-     */
-    function compareVersion(version1: string, version2: string): boolean {
-      const version11 = version1.split('.').map((value) => parseInt(value))
-      const version22 = version2.split('.').map((value) => parseInt(value))
-      for (const i in version11) {
-        if (version22[i] < version11[i]) {
-          return true
-        } else if (version22[i] > version11[i]) {
-          return false
-        }
-      }
-      return true
-    }
+    return semver.satisfies(version, pkgVersion)
   }
 }
 

@@ -1,26 +1,39 @@
 {
   "name": "npm-unpkg",
-  "private": true,
-  "version": "0.0.0",
+  "version": "1.0.1-alpha",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:publish": "npm run build && npm publish",
     "test": "vitest",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "prepare": "husky install"
   },
-  "bin": "./bin/index.ts",
+  "files": [
+    "./package/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xiaohaodu/unpkg"
+  },
+  "bin": {
+    "unpkg": "./package/bin/index.js",
+    "npm-unpkg": "./package/bin/index.js"
+  },
   "dependencies": {
     "chalk": "^5.3.0",
     "commander": "^11.0.0",
     "figlet": "^1.6.0",
     "inquirer": "^9.2.10",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "semver": "^7.5.4"
   },
   "devDependencies": {
     "@commitlint/config-conventional": "^17.7.0",
+    "@types/figlet": "^1.5.6",
+    "@types/inquirer": "^9.0.3",
     "@types/node": "^20.5.0",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
@@ -37,9 +50,11 @@
     "lint-staged": "^14.0.0",
     "prettier": "3.0.1",
     "prettier-eslint": "^15.0.1",
+    "terser": "^5.19.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
+    "vite-plugin-dts": "^3.5.2",
     "vitest": "^0.34.1"
   }
 }
