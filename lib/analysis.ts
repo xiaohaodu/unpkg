@@ -1,7 +1,7 @@
-import * as fs from 'fs'
-import * as path from 'path'
+import fs from 'fs'
+import path from 'path'
 import option from './option'
-import * as semver from 'semver'
+import semver from 'semver'
 /**
  * @description npm包分析对象，目前支持解析通过npm install命令下载的node_modules
  */
