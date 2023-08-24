@@ -5,7 +5,7 @@ import semver from 'semver'
 /**
  * @description npm包分析对象，目前支持解析通过npm install命令下载的node_modules
  */
-class analysis {
+class Analysis {
   public root: string = ''
   public prod: boolean = false
   public analysisTreeMapStore: Analyser.treeAnalyser = new Map()
@@ -203,4 +203,4 @@ class analysis {
   }
 }
 
-export default analysis
+export default Analysis
