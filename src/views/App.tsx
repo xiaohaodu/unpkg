@@ -1,16 +1,9 @@
-import { unpkgRequest } from '@/api/unpkg'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
+import ECharts from '@/components/ECharts'
 function App(): React.JSX.Element {
-  const [data, setData] = useState({})
-  useEffect(() => {
-    unpkgRequest().then((res) => {
-      console.log(res)
-      setData(res)
-    })
-  }, [])
   return (
     <>
-      <div>{JSON.stringify(data)}</div>
+      <ECharts></ECharts>
     </>
   )
 }
