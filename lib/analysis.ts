@@ -9,8 +9,8 @@ class Analysis {
   public root: string = ''
   public prod: boolean = false
   public analysisTreeMapStore: Analyser.treeAnalyser = {
-    dependencies: {},
-    devDependencies: {},
+    dependencies: [],
+    devDependencies: [],
     dependencyTree: [],
     devDependencyTree: [],
   }
@@ -49,10 +49,17 @@ class Analysis {
     })
     const packageJson = JSON.parse(data)
     const { dependencies, devDependencies, version } = packageJson
-
     return {
-      dependencies,
-      devDependencies,
+      dependencies: (() =>
+        Object.keys(dependencies || {}).map((key) => ({
+          name: key,
+          version: dependencies[key],
+        })))(),
+      devDependencies: (() =>
+        Object.keys(devDependencies || {}).map((key) => ({
+          name: key,
+          version: devDependencies[key],
+        })))(),
       version,
     }
   }
@@ -63,14 +70,14 @@ class Analysis {
    */
   public unpkg_dependencies(
     dependencyTree: Analyser.treeNode[],
-    dependencies: Analyser.treeObjectNode,
+    dependencies: Analyser.treeObjectNode[],
     fullPath?: Analyser.treeFullPath,
   ): void {
-    for (const key in dependencies) {
-      if (this.foundMapStore.includes(key + dependencies[key])) continue
+    for (const { name, version } of dependencies) {
+      if (this.foundMapStore.includes(name + version)) continue
       const unpkg = this.unpkg_node_modules_head(
-        key,
-        dependencies[key],
+        name,
+        version,
         fullPath?.fullPath || '',
       )
       if (!unpkg) {
@@ -81,18 +88,15 @@ class Analysis {
         dependencyTree: [],
       }
       const parentNode: Analyser.treeObjectNode = {
-        key: key,
-        value: dependencies[key],
+        name,
+        version,
       }
       const currentFullPath = {
-        depend: fullPath?.depend || {
-          name: key,
-          version: dependencies[key],
-        },
-        fullPath: (fullPath?.fullPath || '.') + '/' + key,
+        depend: fullPath?.depend || parentNode,
+        fullPath: (fullPath?.fullPath || '.') + '/' + name,
       }
       dependencyTree.push({ node: parentNode, analysis: analysis })
-      this.foundMapStore.push(key + dependencies[key])
+      this.foundMapStore.push(name + version)
       this.unpkg_dependencies(
         analysis.dependencyTree,
         analysis.dependencies,
@@ -185,11 +189,11 @@ class Analysis {
   public unpkg_node_modules(): void {
     this.unpkg_dependencies(
       this.analysisTreeMapStore.dependencyTree as Analyser.treeNode[],
-      this.analysisTreeMapStore.dependencies as Analyser.treeObjectNode,
+      this.analysisTreeMapStore.dependencies as Analyser.treeObjectNode[],
     )
     this.unpkg_dependencies(
       this.analysisTreeMapStore.devDependencyTree as Analyser.treeNode[],
-      this.analysisTreeMapStore.devDependencies as Analyser.treeObjectNode,
+      this.analysisTreeMapStore.devDependencies as Analyser.treeObjectNode[],
     )
   }
   /**
