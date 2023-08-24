@@ -4,14 +4,27 @@ declare namespace Analyser {
     devDependencies: treeObjectNode
     version: string
   }
-  type treeMapNode = Map<treeObjectNode, treeAnalyser>
-  type treeAnalyser = Map<string, treeMapNode | treeObjectNode>
+  // Map<treeObjectNode, treeAnalyser>
+  type treeNode = {
+    node?: treeObjectNode
+    analysis?: treeAnalyser
+  }
+  type treeAnalyser = {
+    // string, treeMapNode | treeObjectNode
+    dependencies?: treeObjectNode
+    devDependencies?: treeObjectNode
+    dependencyTree?: Array<treeNode>
+    devDependencyTree?: Array<treeNode>
+  }
   type treeObjectNode = {
     [key: string]: string
   }
-  type treeMapFullPath = {
-    versionMap: Map<string, string>
+  type treeFullPath = {
+    depend: {
+      name: string
+      version: string
+    }
     fullPath: string
   }
-  type foundMapStore = Map<string, string>
+  type foundStore = Array<string>
 }

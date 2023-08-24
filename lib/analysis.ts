@@ -8,8 +8,13 @@ import semver from 'semver'
 class Analysis {
   public root: string = ''
   public prod: boolean = false
-  public analysisTreeMapStore: Analyser.treeAnalyser = new Map()
-  public foundMapStore: Analyser.foundMapStore = new Map()
+  public analysisTreeMapStore: Analyser.treeAnalyser = {
+    dependencies: {},
+    devDependencies: {},
+    dependencyTree: [],
+    devDependencyTree: [],
+  }
+  public foundMapStore: Analyser.foundStore = []
   public constructor() {
     const rootPath = fs.realpathSync(process.cwd(), option.encoding)
     const isExist = fs.existsSync(path.join(rootPath, option.configFileName))
@@ -27,10 +32,8 @@ class Analysis {
       this.prod = option.prod
     }
     const unpkg = this.unpkg(this.root)
-    this.analysisTreeMapStore.set('dependencies', unpkg!.dependencies)
-    this.analysisTreeMapStore.set('devDependencies', unpkg!.devDependencies)
-    this.analysisTreeMapStore.set('devDependencyTree', new Map())
-    this.analysisTreeMapStore.set('dependencyTree', new Map())
+    this.analysisTreeMapStore.dependencies = unpkg!.dependencies
+    this.analysisTreeMapStore.devDependencies = unpkg!.devDependencies
   }
   /**
    * @description 解析出package.json文件的dependencies和devDependencies和version
@@ -59,12 +62,12 @@ class Analysis {
    * @param dependencies 待解包的依赖列表对象
    */
   public unpkg_dependencies(
-    dependencyTree: Analyser.treeMapNode,
+    dependencyTree: Analyser.treeNode[],
     dependencies: Analyser.treeObjectNode,
-    fullPath?: Analyser.treeMapFullPath,
+    fullPath?: Analyser.treeFullPath,
   ): void {
     for (const key in dependencies) {
-      if (this.foundMapStore.has(key)) continue
+      if (this.foundMapStore.includes(key + dependencies[key])) continue
       const unpkg = this.unpkg_node_modules_head(
         key,
         dependencies[key],
@@ -73,25 +76,26 @@ class Analysis {
       if (!unpkg) {
         continue
       }
-      const map = new Map()
-        .set('dependencies', unpkg.dependencies)
-        .set('dependencyTree', new Map())
-      const parentNode = {
+      const analysis = {
+        dependencies: unpkg.dependencies,
+        dependencyTree: [],
+      }
+      const parentNode: Analyser.treeObjectNode = {
         key: key,
         value: dependencies[key],
       }
       const currentFullPath = {
-        versionMap: (fullPath?.versionMap || new Map()).set(
-          key,
-          dependencies[key],
-        ),
+        depend: fullPath?.depend || {
+          name: key,
+          version: dependencies[key],
+        },
         fullPath: (fullPath?.fullPath || '.') + '/' + key,
       }
-      dependencyTree.set(parentNode, map)
-      this.foundMapStore.set(key, dependencies[key])
+      dependencyTree.push({ node: parentNode, analysis: analysis })
+      this.foundMapStore.push(key + dependencies[key])
       this.unpkg_dependencies(
-        map.get('dependencyTree'),
-        map.get('dependencies'),
+        analysis.dependencyTree,
+        analysis.dependencies,
         currentFullPath,
       )
     }
@@ -180,16 +184,12 @@ class Analysis {
    */
   public unpkg_node_modules(): void {
     this.unpkg_dependencies(
-      this.analysisTreeMapStore.get('dependencyTree') as Analyser.treeMapNode,
-      this.analysisTreeMapStore.get('dependencies') as Analyser.treeObjectNode,
+      this.analysisTreeMapStore.dependencyTree as Analyser.treeNode[],
+      this.analysisTreeMapStore.dependencies as Analyser.treeObjectNode,
     )
     this.unpkg_dependencies(
-      this.analysisTreeMapStore.get(
-        'devDependencyTree',
-      ) as Analyser.treeMapNode,
-      this.analysisTreeMapStore.get(
-        'devDependencies',
-      ) as Analyser.treeObjectNode,
+      this.analysisTreeMapStore.devDependencyTree as Analyser.treeNode[],
+      this.analysisTreeMapStore.devDependencies as Analyser.treeObjectNode,
     )
   }
   /**
