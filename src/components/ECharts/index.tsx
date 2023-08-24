@@ -1,6 +1,7 @@
 import { unpkgRequest } from '@/api/unpkg'
 import React, { useEffect, useRef, useState } from 'react'
 import * as echarts from 'echarts'
+import './index.scss'
 function Echarts(): React.JSX.Element {
   type EChartsOption = echarts.EChartsOption
   const [data, setData] = useState([])
@@ -40,7 +41,7 @@ function Echarts(): React.JSX.Element {
   }
   const option: EChartsOption = {
     title: {
-      text: 'Disk Usage',
+      text: 'npm-node_modules',
       left: 'center',
     },
 
@@ -58,14 +59,14 @@ function Echarts(): React.JSX.Element {
           '<div class="tooltip-title">' +
             echarts.format.encodeHTML(treePath.join('/')) +
             '</div>',
-          'Disk Usage: ' + echarts.format.addCommas(value) + ' KB',
+          'npm-node_modules: ' + echarts.format.addCommas(value) + ' KB',
         ].join('')
       },
     },
 
     series: [
       {
-        name: 'Disk Usage',
+        name: 'npm-node_modules',
         type: 'treemap',
         visibleMin: 300,
         label: {
