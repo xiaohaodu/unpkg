@@ -1,10 +1,10 @@
-import { unpkgRequest } from '@/api/unpkg'
+import { /**unpkgRequest,*/ unpkgRequestSample } from '@/api/unpkg'
 import React, { useEffect, useRef, useState } from 'react'
 import * as echarts from 'echarts'
 import './index.scss'
 function Echarts(): React.JSX.Element {
   type EChartsOption = echarts.EChartsOption
-  const [data, setData] = useState([])
+  const [data, setData] = useState<any>([])
   function getLevelOption() {
     return [
       {
@@ -46,21 +46,8 @@ function Echarts(): React.JSX.Element {
     },
 
     tooltip: {
-      formatter: function (info: any) {
-        const value = info.value
-        const treePathInfo = info.treePathInfo
-        const treePath = []
-
-        for (let i = 1; i < treePathInfo.length; i++) {
-          treePath.push(treePathInfo[i].name)
-        }
-
-        return [
-          '<div class="tooltip-title">' +
-            echarts.format.encodeHTML(treePath.join('/')) +
-            '</div>',
-          'npm-node_modules: ' + echarts.format.addCommas(value) + ' KB',
-        ].join('')
+      formatter: function () {
+        return '1'
       },
     },
 
@@ -86,19 +73,27 @@ function Echarts(): React.JSX.Element {
     ],
   }
   const chartDom = useRef<HTMLElement>()
-  const once = useRef(false)
+  const myChart = useRef<echarts.ECharts>()
   useEffect(() => {
-    if (once.current) return
     chartDom.current = document.getElementById('echarts')!
-    setData
-    const myChart = echarts.init(chartDom.current)
-    myChart.showLoading()
-    unpkgRequest().then((res) => {
-      console.log(res)
-      option && myChart.setOption(option)
-      myChart.hideLoading()
+    myChart.current = echarts.init(chartDom.current)
+  }, [])
+  useEffect(() => {
+    myChart.current?.showLoading()
+    unpkgRequestSample().then((res) => {
+      console.log(res.data)
+      setData(res.data)
+      option && myChart.current && myChart.current.setOption(option)
+      myChart.current && myChart.current.hideLoading()
     })
-    once.current = true
+    // unpkgRequest().then((res) => {
+    //   const { data } = res
+    //   console.log(data)
+
+    //   setData([data.dependencyTree, data.devDependencyTree])
+    //   option && myChart.current && myChart.current.setOption(option)
+    //   myChart.current && myChart.current.hideLoading()
+    // })
   }, [])
   return (
     <>

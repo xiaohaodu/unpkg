@@ -6,3 +6,10 @@ export function unpkgRequest() {
     url: baseUrl,
   })
 }
+
+export function unpkgRequestSample() {
+  return axios({
+    method: 'get',
+    url: '/public/dist.tree.json',
+  })
+}
