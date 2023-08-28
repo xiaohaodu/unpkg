@@ -1,6 +1,6 @@
 import cors from 'cors'
 import express from 'express'
-import Analysis from '../lib/Analysis'
+import Analysis from '../lib/Analysis.js'
 const server = express()
 
 const port = 3000

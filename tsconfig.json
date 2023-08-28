@@ -3,11 +3,11 @@
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "CommonJS",
+    "module": "ESNext",
     "skipLibCheck": true,
 
     /* Bundler mode */
-    "moduleResolution": "Node",
+    "moduleResolution": "Bundler",
     "allowImportingTsExtensions": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -28,7 +28,14 @@
       "lib/*": ["lib/*"]
     }
   },
-  "include": ["types/**/*", "lib/**/*", "bin/**/*", "src/**/*", "server/**/*"],
+  "include": [
+    "types/**/*",
+    "lib/**/*",
+    "bin/**/*",
+    "src/**/*",
+    "server/**/*",
+    "package.json"
+  ],
   "exclude": ["node_modules", "**/*.spec.ts"],
   "ts-node": { "esm": true },
   "references": [{ "path": "./tsconfig.node.json" }]

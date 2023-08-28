@@ -1,4 +1,4 @@
-import { unpkgRequest /** , unpkgRequestSample*/ } from '@/api/unpkg'
+import { unpkgRequest /** , unpkgRequestSample*/ } from '@/api/unpkg.js'
 import React, { useEffect, useRef, useState } from 'react'
 import * as echarts from 'echarts'
 import './index.scss'

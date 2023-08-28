@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import option from './option'
+import option from './option.js'
 import semver from 'semver'
 /**
  * @description npm包分析对象，目前支持解析通过npm install命令下载的node_modules

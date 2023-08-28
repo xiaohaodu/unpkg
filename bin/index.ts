@@ -7,6 +7,7 @@ import * as commander from 'commander'
 // 创建新的 commander 实例
 const program = new commander.Command()
 const pkg = JSON.parse(readFileSync('../package.json', { encoding: 'utf-8' }))
+
 program
   .name(Object.keys(pkg.bin)[0]) // 设置 usage 的 name
   .usage('<command>[options]') // 设置 usage 的 message
@@ -21,7 +22,6 @@ program
   .option('-p --prod', '是否仅分析生产环境依赖', false)
   .action(() => {
     const option = program.opts()
-    console.log(option)
     if (Reflect.ownKeys(option).length === 0) {
       program.outputHelp()
       console.log(

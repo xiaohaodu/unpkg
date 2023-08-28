@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { baseUrl } from './http'
+import { baseUrl } from './http.js'
 export function unpkgRequest() {
   return axios({
     method: 'get',
