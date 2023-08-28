@@ -8,13 +8,14 @@ import semver from 'semver'
 class Analysis {
   public root: string = ''
   public prod: boolean = false
-  public analysisTreeMapStore: Analyser.treeAnalyser = {
+  public analysisTreeStore: Analyser.treeAnalyser = {
     dependencies: [],
     devDependencies: [],
     dependencyTree: [],
     devDependencyTree: [],
   }
-  public foundMapStore: Analyser.foundStore = []
+  public foundStore: Analyser.foundStore = []
+  public echartsFormatData: Array<any> = []
   public constructor() {
     const rootPath = fs.realpathSync(process.cwd(), option.encoding)
     const isExist = fs.existsSync(path.join(rootPath, option.configFileName))
@@ -32,8 +33,19 @@ class Analysis {
       this.prod = option.prod
     }
     const unpkg = this.unpkg(this.root)
-    this.analysisTreeMapStore.dependencies = unpkg!.dependencies
-    this.analysisTreeMapStore.devDependencies = unpkg!.devDependencies
+    this.analysisTreeStore.dependencies = unpkg!.dependencies
+    this.analysisTreeStore.devDependencies = unpkg!.devDependencies
+
+    this.echartsFormatData[0] = {
+      name: 'dependencies',
+      value: 1,
+      children: [],
+    }
+    this.echartsFormatData[1] = {
+      name: 'devDependencies',
+      value: 1,
+      children: [],
+    }
   }
   /**
    * @description 解析出package.json文件的dependencies和devDependencies和version
@@ -72,9 +84,10 @@ class Analysis {
     dependencyTree: Analyser.treeNode[],
     dependencies: Analyser.treeObjectNode[],
     fullPath?: Analyser.treeFullPath,
+    current?: any[],
   ): void {
     for (const { name, version } of dependencies) {
-      if (this.foundMapStore.includes(name + version)) continue
+      if (this.foundStore.includes(name + version)) continue
       const unpkg = this.unpkg_node_modules_head(
         name,
         version,
@@ -96,11 +109,19 @@ class Analysis {
         fullPath: (fullPath?.fullPath || '.') + '/' + name,
       }
       dependencyTree.push({ node: parentNode, analysis: analysis })
-      this.foundMapStore.push(name + version)
+      const currentChildren: Array<any> = []
+      current?.push({
+        ...parentNode,
+        value: 1,
+        path: currentFullPath.fullPath,
+        children: currentChildren,
+      })
+      this.foundStore.push(name + version)
       this.unpkg_dependencies(
         analysis.dependencyTree,
         analysis.dependencies,
         currentFullPath,
+        currentChildren,
       )
     }
   }
@@ -188,12 +209,16 @@ class Analysis {
    */
   public unpkg_node_modules(): void {
     this.unpkg_dependencies(
-      this.analysisTreeMapStore.dependencyTree as Analyser.treeNode[],
-      this.analysisTreeMapStore.dependencies as Analyser.treeObjectNode[],
+      this.analysisTreeStore.dependencyTree as Analyser.treeNode[],
+      this.analysisTreeStore.dependencies as Analyser.treeObjectNode[],
+      undefined,
+      this.echartsFormatData[0].children,
     )
     this.unpkg_dependencies(
-      this.analysisTreeMapStore.devDependencyTree as Analyser.treeNode[],
-      this.analysisTreeMapStore.devDependencies as Analyser.treeObjectNode[],
+      this.analysisTreeStore.devDependencyTree as Analyser.treeNode[],
+      this.analysisTreeStore.devDependencies as Analyser.treeObjectNode[],
+      undefined,
+      this.echartsFormatData[1].children,
     )
   }
   /**

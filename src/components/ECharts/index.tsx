@@ -1,10 +1,11 @@
-import { /**unpkgRequest,*/ unpkgRequestSample } from '@/api/unpkg'
+import { unpkgRequest /** , unpkgRequestSample*/ } from '@/api/unpkg'
 import React, { useEffect, useRef, useState } from 'react'
 import * as echarts from 'echarts'
 import './index.scss'
 function Echarts(): React.JSX.Element {
   type EChartsOption = echarts.EChartsOption
   const [data, setData] = useState<any>([])
+  const renderRef = useRef(false)
   function getLevelOption() {
     return [
       {
@@ -39,61 +40,70 @@ function Echarts(): React.JSX.Element {
       },
     ]
   }
-  const option: EChartsOption = {
-    title: {
-      text: 'npm-node_modules',
-      left: 'center',
-    },
 
-    tooltip: {
-      formatter: function () {
-        return '1'
-      },
-    },
-
-    series: [
-      {
-        name: 'npm-node_modules',
-        type: 'treemap',
-        visibleMin: 300,
-        label: {
-          show: true,
-          formatter: '{b}',
-        },
-        upperLabel: {
-          show: true,
-          height: 30,
-        },
-        itemStyle: {
-          borderColor: '#fff',
-        },
-        levels: getLevelOption(),
-        data: data,
-      },
-    ],
-  }
   const chartDom = useRef<HTMLElement>()
   const myChart = useRef<echarts.ECharts>()
-  useEffect(() => {
-    chartDom.current = document.getElementById('echarts')!
-    myChart.current = echarts.init(chartDom.current)
-  }, [])
+  const useECharts = () => {
+    const option: EChartsOption = {
+      title: {
+        text: 'npm-node_modules',
+        left: 'center',
+      },
+
+      tooltip: {
+        formatter: function () {
+          return '1'
+        },
+      },
+
+      series: [
+        {
+          name: 'npm-node_modules',
+          type: 'treemap',
+          visibleMin: 300,
+          label: {
+            show: true,
+            formatter: '{b}',
+          },
+          upperLabel: {
+            show: true,
+            height: 30,
+          },
+          itemStyle: {
+            borderColor: '#fff',
+          },
+          levels: getLevelOption(),
+          data: data,
+        },
+      ],
+    }
+    useEffect(() => {
+      if (renderRef.current) {
+        return
+      }
+      renderRef.current = true
+      console.log('初始化')
+      chartDom.current = document.getElementById('echarts')!
+      myChart.current = echarts.init(chartDom.current)
+    }, [])
+    return option
+  }
+  const option = useECharts()
   useEffect(() => {
     myChart.current?.showLoading()
-    unpkgRequestSample().then((res) => {
-      console.log(res.data)
-      setData(res.data)
-      option && myChart.current && myChart.current.setOption(option)
-      myChart.current && myChart.current.hideLoading()
-    })
-    // unpkgRequest().then((res) => {
-    //   const { data } = res
-    //   console.log(data)
-
-    //   setData([data.dependencyTree, data.devDependencyTree])
-    //   option && myChart.current && myChart.current.setOption(option)
-    //   myChart.current && myChart.current.hideLoading()
+    myChart.current && myChart.current.setOption(option)
+    myChart.current && myChart.current.hideLoading()
+  }, [option])
+  useEffect(() => {
+    // unpkgRequestSample().then((res) => {
+    //   console.log(res.data)
+    //   setData(res.data)
     // })
+    unpkgRequest().then((res) => {
+      const { data } = res
+      console.log(data)
+      setData(data)
+    })
   }, [])
   return (
     <>

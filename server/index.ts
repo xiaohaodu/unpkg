@@ -12,7 +12,7 @@ server.use(
 server.get('/', (_, res) => {
   const analysis = new Analysis()
   analysis.unpkg_node_modules()
-  res.send(JSON.stringify(analysis.analysisTreeMapStore))
+  res.send(JSON.stringify(analysis.echartsFormatData))
 })
 
 server.listen(port, () => {
