@@ -1,27 +1,47 @@
-# React + TypeScript + Vite
+# npm-unpkg
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+---
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
+## Installation
 
 ```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
+$ npm i -g npm-unpkg
+$ npm i npm-unpkg
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+## Use
+
+### 直接在命令行中使用
+
+```js
+npm-unpkg -a  /**或者*/ unpkg -a
+//在项目package.json和node_modules文件所在路径调用
+```
+
+### 在项目中使用
+
+> 测试中...
+
+## 命令参数
+
+### 使用帮助
+
+```js
+unpkg -h /**或者 */ unpkg
+```
+
+### 通过配置文件配置
+
+```json
+//.unpkg.json
+{
+  "root": ".", //string    package.json路径（分析路径）——默认为'.'
+  "prod": false //boolean   是否仅分析生产依赖（dependence）——默认为false
+}
+```
+
+### 在调用时配置
+
+```js
+unpkg -r . -p false -a
+```
