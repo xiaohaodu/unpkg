@@ -21,7 +21,7 @@ export default defineConfig({
         drop_debugger: true,
       },
     },
-    outDir: 'package/dist',
+    outDir: 'package/server/public',
     rollupOptions: {},
   },
 })

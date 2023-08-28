@@ -3,10 +3,19 @@ import chalk from 'chalk'
 import figlet from 'figlet'
 import { readFileSync } from 'fs'
 import * as commander from 'commander'
+import path from 'path'
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
+const __dirname = dirname(fileURLToPath(import.meta.url))
+import { generateServer } from '../server/index.js'
 // import inquirer from 'inquirer'
 // 创建新的 commander 实例
 const program = new commander.Command()
-const pkg = JSON.parse(readFileSync('../package.json', { encoding: 'utf-8' }))
+const pkg = JSON.parse(
+  readFileSync(path.join(__dirname, '../package.json'), {
+    encoding: 'utf-8',
+  }),
+)
 
 program
   .name(Object.keys(pkg.bin)[0]) // 设置 usage 的 name
@@ -18,8 +27,9 @@ program
         '这是一个node_modules分析工具,目前支持npm install的下载包分析',
     )
   })
-  .option('-r --root', '设置根路径', '.')
-  .option('-p --prod', '是否仅分析生产环境依赖', false)
+  .option('-r --root <path>', '设置根路径')
+  .option('-p --prod', '是否仅分析生产环境依赖')
+  .option('-a --analyse', '开始分析')
   .action(() => {
     const option = program.opts()
     if (Reflect.ownKeys(option).length === 0) {
@@ -33,6 +43,8 @@ program
             whitespaceBreak: true,
           }),
       )
+    } else {
+      if (option.analyse) generateServer(option?.root, option?.prod)
     }
   })
 

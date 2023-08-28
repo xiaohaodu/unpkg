@@ -3,7 +3,7 @@ import { baseUrl } from './http.js'
 export function unpkgRequest() {
   return axios({
     method: 'get',
-    url: baseUrl,
+    url: `${baseUrl}/data`,
   })
 }
 

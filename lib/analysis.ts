@@ -16,7 +16,7 @@ class Analysis {
   }
   public foundStore: Analyser.foundStore = []
   public echartsFormatData: Array<any> = []
-  public constructor() {
+  public constructor(root?: string, prod?: boolean) {
     const rootPath = fs.realpathSync(process.cwd(), option.encoding)
     const isExist = fs.existsSync(path.join(rootPath, option.configFileName))
     if (isExist) {
@@ -24,13 +24,14 @@ class Analysis {
         encoding: option.encoding,
       })
       const config = JSON.parse(data)
-      this.root = config.root
-        ? path.join(rootPath, config.root)
-        : path.join(rootPath, option.root)
-      this.prod = config.prod || option.prod
+      this.root =
+        root || config.root
+          ? path.join(rootPath, config.root)
+          : path.join(rootPath, option.root)
+      this.prod = prod || config.prod || option.prod
     } else {
-      this.root = path.join(rootPath, option.root)
-      this.prod = option.prod
+      this.root = root || path.join(rootPath, option.root)
+      this.prod = prod || option.prod
     }
     const unpkg = this.unpkg(this.root)
     this.analysisTreeStore.dependencies = unpkg!.dependencies
