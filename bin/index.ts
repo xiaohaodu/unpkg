@@ -3,6 +3,7 @@ import chalk from 'chalk'
 import figlet from 'figlet'
 import { readFileSync } from 'fs'
 import * as commander from 'commander'
+import open from 'open'
 import path from 'path'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
@@ -29,6 +30,7 @@ program
   })
   .option('-r --root <path>', '设置根路径')
   .option('-p --prod', '是否仅分析生产环境依赖')
+  .option('-d --deep <deep>', '分析深度')
   .option('-a --analyse', '开始分析')
   .action(() => {
     const option = program.opts()
@@ -44,7 +46,10 @@ program
           }),
       )
     } else {
-      if (option.analyse) generateServer(option?.root, option?.prod)
+      if (option.analyse) {
+        generateServer(option?.root, option?.prod, option?.deep)
+        open('http://localhost:3000/view')
+      }
     }
   })
 

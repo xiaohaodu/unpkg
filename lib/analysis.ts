@@ -6,8 +6,9 @@ import semver from 'semver'
  * @description npm包分析对象，目前支持解析通过npm install命令下载的node_modules
  */
 class Analysis {
-  public root: string = ''
-  public prod: boolean = false
+  public root: string = option.root
+  public prod: boolean = option.prod
+  public deep: number = option.deep
   public analysisTreeStore: Analyser.treeAnalyser = {
     dependencies: [],
     devDependencies: [],
@@ -16,7 +17,7 @@ class Analysis {
   }
   public foundStore: Analyser.foundStore = []
   public echartsFormatData: Array<any> = []
-  public constructor(root?: string, prod?: boolean) {
+  public constructor(root?: string, prod?: boolean, deep?: number) {
     const rootPath = fs.realpathSync(process.cwd(), option.encoding)
     const isExist = fs.existsSync(path.join(rootPath, option.configFileName))
     if (isExist) {
@@ -29,9 +30,11 @@ class Analysis {
           ? path.join(rootPath, config.root)
           : path.join(rootPath, option.root)
       this.prod = prod || config.prod || option.prod
+      this.deep = deep || config.deep || option.deep
     } else {
       this.root = root || path.join(rootPath, option.root)
       this.prod = prod || option.prod
+      this.deep = deep || option.deep
     }
     const unpkg = this.unpkg(this.root)
     this.analysisTreeStore.dependencies = unpkg!.dependencies
@@ -42,10 +45,12 @@ class Analysis {
       value: 1,
       children: [],
     }
-    this.echartsFormatData[1] = {
-      name: 'devDependencies',
-      value: 1,
-      children: [],
+    if (!this.prod) {
+      this.echartsFormatData[1] = {
+        name: 'devDependencies',
+        value: 1,
+        children: [],
+      }
     }
   }
   /**
@@ -160,6 +165,9 @@ class Analysis {
           fullPathList.splice(i + 1, 1)
         }
       }
+      if (fullPathList.length > this.deep) {
+        return null
+      }
       const searchPath = fullPathList.pop() || ''
       if (
         !fs.existsSync(
@@ -215,12 +223,14 @@ class Analysis {
       undefined,
       this.echartsFormatData[0].children,
     )
-    this.unpkg_dependencies(
-      this.analysisTreeStore.devDependencyTree as Analyser.treeNode[],
-      this.analysisTreeStore.devDependencies as Analyser.treeObjectNode[],
-      undefined,
-      this.echartsFormatData[1].children,
-    )
+    if (!this.prod) {
+      this.unpkg_dependencies(
+        this.analysisTreeStore.devDependencyTree as Analyser.treeNode[],
+        this.analysisTreeStore.devDependencies as Analyser.treeObjectNode[],
+        undefined,
+        this.echartsFormatData[1].children,
+      )
+    }
   }
   /**
    *

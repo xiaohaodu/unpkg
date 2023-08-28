@@ -8,14 +8,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const server = express()
 const port = 3000
 
-export function generateServer(root: string, prod: boolean) {
+export function generateServer(root: string, prod: boolean, deep: number) {
   server.use(
     cors({
       origin: '*',
     }),
   )
   server.get('/data', (_, res) => {
-    const analysis = new Analysis(root, prod)
+    const analysis = new Analysis(root, prod, deep)
     analysis.unpkg_node_modules()
     res.send(JSON.stringify(analysis.echartsFormatData))
   })
