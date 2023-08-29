@@ -25,7 +25,7 @@ program
   .option('-i, --info', 'information', () => {
     console.log(
       chalk.blue('info: ') +
-        '这是一个node_modules分析工具,目前支持npm install的下载包分析',
+        '这是一个node_modules分析工具,支持npm、pnpm等包管理工具的下载包分析',
     )
   })
   .option('-r --root <path>', '设置根路径')
