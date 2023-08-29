@@ -1,6 +1,6 @@
 import cors from 'cors'
 import express from 'express'
-import Analysis from '../lib/Analysis.js'
+import Analysis from '../lib/analysis.js'
 import path from 'path'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
