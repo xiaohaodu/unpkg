@@ -29,8 +29,8 @@ program
     )
   })
   .option('-r --root <path>', '设置根路径')
-  .option('-p --prod', '是否仅分析生产环境依赖')
-  .option('-d --deep <deep>', '分析深度')
+  .option('-p --prod', '设置是否仅分析生产环境依赖')
+  .option('-d --deep <deep>', '设置分析深度')
   .option('-a --analyse', '开始分析')
   .action(() => {
     const option = program.opts()

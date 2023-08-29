@@ -1,6 +1,20 @@
 # npm-unpkg
 
----
+## 这是一个node_modules分析工具,支持npm、pnpm等包管理工具的下载包分析
+
+```bash
+unpkg -h
+> Usage: unpkg <command>[options]
+
+> Options:
+  -v, --version     output the version number
+  -i, --info        information
+  -r --root <path>  设置根路径
+  -p --prod         设置是否仅分析生产环境依赖
+  -d --deep <deep>  设置分析深度
+  -a --analyse      开始分析
+  -h, --help        display help for command
+```
 
 ## Installation
 
