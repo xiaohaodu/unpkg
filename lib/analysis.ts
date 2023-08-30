@@ -9,6 +9,8 @@ class Analysis {
   public root: string = option.root
   public prod: boolean = option.prod
   public deep: number = option.deep
+  public jsonDir: string = option.jsonDir
+  public jsonFileName: string = option.jsonFileName
   public analysisTreeStore: Analyser.treeAnalyser = {
     dependencies: [],
     devDependencies: [],
@@ -17,7 +19,13 @@ class Analysis {
   }
   public foundStore: Analyser.foundStore = []
   public echartsFormatData: Array<any> = []
-  public constructor(root?: string, prod?: boolean, deep?: number) {
+  public constructor(
+    root?: string,
+    prod?: boolean,
+    deep?: number,
+    jsonDir?: string,
+    jsonFileName?: string,
+  ) {
     const rootPath = fs.realpathSync(process.cwd(), option.encoding)
     const isExist = fs.existsSync(path.join(rootPath, option.configFileName))
     if (isExist) {
@@ -31,10 +39,14 @@ class Analysis {
           : path.join(rootPath, option.root)
       this.prod = prod || config.prod || option.prod
       this.deep = deep || config.deep || option.deep
+      this.jsonDir = jsonDir || config.jsonDir || option.jsonDir
+      this.jsonFileName = jsonFileName || config.jsonFileName || option.jsonDir
     } else {
       this.root = root || path.join(rootPath, option.root)
       this.prod = prod || option.prod
       this.deep = deep || option.deep
+      this.jsonDir = jsonDir || option.jsonDir
+      this.jsonFileName = jsonFileName || option.jsonDir
     }
     const unpkg = this.unpkg(this.root)
     this.analysisTreeStore.dependencies = unpkg!.dependencies
@@ -240,6 +252,14 @@ class Analysis {
    */
   public versionMatch(pkgVersion: string, version: string): boolean {
     return semver.satisfies(version, pkgVersion)
+  }
+  public printJSON(
+    root: string = this.root,
+    jsonDir: string = this.jsonDir,
+    jsonFileName: string = this.jsonFileName,
+  ) {
+    const output = path.join(root, jsonDir, jsonFileName)
+    fs.writeFileSync(output, JSON.stringify(this.echartsFormatData))
   }
 }
 

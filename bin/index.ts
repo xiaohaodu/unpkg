@@ -31,7 +31,11 @@ program
   .option('-r --root <path>', '设置根路径')
   .option('-p --prod', '设置是否仅分析生产环境依赖')
   .option('-d --deep <deep>', '设置分析深度')
-  .option('-a --analyse', '开始分析')
+  .option('-a --analyse', '开始分析,网页展示')
+  .option(
+    '--json <path>',
+    '开始分析,输出json文件展示,<path>为可选项:设置json文件输出路径',
+  )
   .action(() => {
     const option = program.opts()
     if (Reflect.ownKeys(option).length === 0) {
@@ -47,7 +51,7 @@ program
       )
     } else {
       if (option.analyse) {
-        generateServer(option?.root, option?.prod, option?.deep)
+        generateServer(option?.root, option?.prod, option?.deep, option?.json)
         open('http://localhost:3000/view')
       }
     }

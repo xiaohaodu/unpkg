@@ -8,7 +8,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const server = express()
 const port = 3000
 
-export function generateServer(root: string, prod: boolean, deep: number) {
+export function generateServer(
+  root: string,
+  prod: boolean,
+  deep: number,
+  json: string,
+) {
+  json
   server.use(
     cors({
       origin: '*',
