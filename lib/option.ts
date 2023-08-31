@@ -6,4 +6,5 @@ export default {
   encoding: <BufferEncoding>'utf8',
   jsonDir: 'unpkgJSON',
   jsonFileName: 'unpkg.analysis.json',
+  port: 3000,
 }

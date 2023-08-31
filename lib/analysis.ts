@@ -9,6 +9,7 @@ class Analysis {
   public root: string = option.root
   public prod: boolean = option.prod
   public deep: number = option.deep
+  public port: number = option.port
   public jsonDir: string = option.jsonDir
   public jsonFileName: string = option.jsonFileName
   public analysisTreeStore: Analyser.treeAnalyser = {
@@ -23,6 +24,7 @@ class Analysis {
     root?: string,
     prod?: boolean,
     deep?: number,
+    port?: number,
     jsonDir?: string,
     jsonFileName?: string,
   ) {
@@ -34,15 +36,19 @@ class Analysis {
       })
       const config = JSON.parse(data)
       this.root =
-        root || config.root
+        (root ? path.join(rootPath, root) : '') ||
+        (config.root
           ? path.join(rootPath, config.root)
-          : path.join(rootPath, option.root)
+          : path.join(rootPath, option.root))
       this.prod = prod || config.prod || option.prod
       this.deep = deep || config.deep || option.deep
+      this.port = port || config.port || option.port
       this.jsonDir = jsonDir || config.jsonDir || option.jsonDir
       this.jsonFileName = jsonFileName || config.jsonFileName || option.jsonDir
     } else {
-      this.root = root || path.join(rootPath, option.root)
+      this.root =
+        (root ? path.join(rootPath, root) : '') ||
+        path.join(rootPath, option.root)
       this.prod = prod || option.prod
       this.deep = deep || option.deep
       this.jsonDir = jsonDir || option.jsonDir
@@ -260,6 +266,14 @@ class Analysis {
   ) {
     const output = path.join(root, jsonDir, jsonFileName)
     fs.writeFileSync(output, JSON.stringify(this.echartsFormatData))
+  }
+  public printJsonBash(
+    fullPath: string = path.join(this.jsonDir, this.jsonFileName),
+  ) {
+    fs.writeFileSync(
+      path.join(this.root, fullPath),
+      JSON.stringify(this.echartsFormatData),
+    )
   }
 }
 

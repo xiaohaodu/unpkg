@@ -34,9 +34,10 @@
     "bin/**/*",
     "src/**/*",
     "server/**/*",
-    "package.json"
+    "package.json",
+    "test/analysis.test"
   ],
-  "exclude": ["node_modules", "**/*.spec.ts"],
+  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"],
   "ts-node": { "esm": true },
   "references": [{ "path": "./tsconfig.node.json" }]
 }
