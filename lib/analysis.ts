@@ -37,26 +37,32 @@ class Analysis {
       const config = JSON.parse(data)
       this.root =
         (root ? path.join(rootPath, root) : '') ||
-        (config.root
-          ? path.join(rootPath, config.root)
-          : path.join(rootPath, option.root))
-      this.prod = prod || config.prod || option.prod
-      this.deep = deep || config.deep || option.deep
-      this.port = port || config.port || option.port
-      this.jsonDir = jsonDir || config.jsonDir || option.jsonDir
-      this.jsonFileName = jsonFileName || config.jsonFileName || option.jsonDir
+        (config?.root
+          ? path.join(rootPath, config?.root)
+          : path.join(rootPath, option?.root))
+      this.prod = prod || config?.prod || option?.prod
+      this.deep = deep || config?.deep || option?.deep
+      this.port = port || config?.port || option?.port
+      this.jsonDir = jsonDir || config?.jsonDir || option?.jsonDir
+      this.jsonFileName =
+        jsonFileName || config?.jsonFileName || option?.jsonDir
     } else {
       this.root =
         (root ? path.join(rootPath, root) : '') ||
-        path.join(rootPath, option.root)
-      this.prod = prod || option.prod
-      this.deep = deep || option.deep
-      this.jsonDir = jsonDir || option.jsonDir
-      this.jsonFileName = jsonFileName || option.jsonDir
+        path.join(rootPath, option?.root)
+      this.prod = prod || option?.prod
+      this.deep = deep || option?.deep
+      this.jsonDir = jsonDir || option?.jsonDir
+      this.jsonFileName = jsonFileName || option?.jsonDir
     }
     const unpkg = this.unpkg(this.root)
-    this.analysisTreeStore.dependencies = unpkg!.dependencies
-    this.analysisTreeStore.devDependencies = unpkg!.devDependencies
+    if (!unpkg) {
+      throw new Error(
+        '请设置正确的路径，保证路径下含有node_modules和package.json',
+      )
+    }
+    this.analysisTreeStore.dependencies = unpkg?.dependencies || []
+    this.analysisTreeStore.devDependencies = unpkg?.devDependencies || []
 
     this.echartsFormatData[0] = {
       name: 'dependencies',

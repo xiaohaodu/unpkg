@@ -18,7 +18,6 @@ const pkg = JSON.parse(
     encoding: 'utf-8',
   }),
 )
-
 program
   .name(Object.keys(pkg.bin)[0]) // 设置 usage 的 name
   .usage('<command>[options]') // 设置 usage 的 message
