@@ -2,12 +2,13 @@ import { unpkgRequest /** , unpkgRequestSample*/ } from '@/api/unpkg.js'
 import React, { useEffect, useRef, useState } from 'react'
 import * as echarts from 'echarts'
 import './index.scss'
+import { colorStaticStore } from '@/utils'
 function Echarts(): React.JSX.Element {
   type EChartsOption = echarts.EChartsOption
   const [data, setData] = useState<any>([])
   const renderRef = useRef(false)
   function getLevelOption() {
-    return [
+    const levelOption: Array<any> = [
       {
         itemStyle: {
           borderColor: '#777',
@@ -30,15 +31,20 @@ function Echarts(): React.JSX.Element {
           },
         },
       },
-      {
+    ]
+    for (let i = 2; i < colorStaticStore.length; i += 2) {
+      levelOption.push({
         colorSaturation: [0.35, 0.5],
         itemStyle: {
+          color: colorStaticStore[i],
+          borderColor: colorStaticStore[i + 1],
           borderWidth: 5,
           gapWidth: 1,
           borderColorSaturation: 0.6,
         },
-      },
-    ]
+      })
+    }
+    return levelOption
   }
 
   const chartDom = useRef<HTMLElement>()
@@ -51,8 +57,21 @@ function Echarts(): React.JSX.Element {
       },
 
       tooltip: {
-        formatter: function () {
-          return '1'
+        formatter: function (info: any) {
+          console.log(info)
+
+          const treePathInfo = info.treePathInfo
+          const treePath = []
+
+          for (let i = 1; i < treePathInfo.length; i++) {
+            treePath.push(treePathInfo[i].name)
+          }
+
+          return [
+            '<div class="tooltip-title">' +
+              echarts.format.encodeHTML(treePath.join('/')) +
+              '</div>',
+          ].join('')
         },
       },
 
