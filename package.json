@@ -1,6 +1,6 @@
 {
   "name": "npm-unpkg",
-  "version": "1.0.6-alpha",
+  "version": "1.0.8-alpha",
   "type": "module",
   "scripts": {
     "dev": "tsc -w | nodemon package/server/index.js | vite",
@@ -17,6 +17,7 @@
   "files": [
     "./package/**/*"
   ],
+  "exports": "./package/lib/Analysis.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/xiaohaodu/unpkg"
