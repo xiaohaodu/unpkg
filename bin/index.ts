@@ -8,7 +8,7 @@ import path from 'path'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 const __dirname = dirname(fileURLToPath(import.meta.url))
-import { generateServer } from '../server/index.js'
+import { generateServer } from '../server/server.js'
 import axios from 'axios'
 // import inquirer from 'inquirer'
 // 创建新的 commander 实例
