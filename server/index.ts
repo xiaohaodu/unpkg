@@ -1,6 +1,6 @@
 import cors from 'cors'
 import express from 'express'
-import Analysis from '../lib/analysis.js'
+import Analysis from './analysis.js'
 import path from 'path'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
@@ -15,48 +15,60 @@ export function generateServer(
   prod?: boolean,
   deep?: number,
   port?: number,
+  jsonDir?: string,
+  jsonFileName?: string,
 ): Promise<{
   Server: http.Server<typeof IncomingMessage, typeof ServerResponse>
   Port: number
 }> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     Express.use(
       cors({
         origin: '*',
       }),
     )
-    const analysis = new Analysis(root, prod, deep, port)
-    Express.get('/data', (_, res) => {
-      analysis.unpkg_node_modules()
-      res.send(JSON.stringify(analysis.echartsFormatData))
-    })
-    Express.get('/json', (req, res) => {
-      const { json } = req.query
-      analysis.unpkg_node_modules()
-      analysis.printJsonBash(json as string)
-      res.send({
-        state: 200,
+    try {
+      const analysis = new Analysis(
+        root,
+        prod,
+        deep,
+        port,
+        jsonDir,
+        jsonFileName,
+      )
+      Express.get('/data', (_, res) => {
+        analysis.unpkg_node_modules()
+        res.send(JSON.stringify(analysis.echartsFormatData))
       })
-    })
-    Express.use('/view', express.static(path.join(__dirname, './public')))
-    const Server = Express.listen(port)
-    const res: {
-      Server: http.Server<typeof IncomingMessage, typeof ServerResponse>
-      Port: number
-    } = {
-      Server: Server,
-      Port: 0,
-    }
-    Server.on('error', (e: any) => {
-      if (e.code === 'EADDRINUSE') {
-        Server.listen()
-        res.Port = (Server.address() as AddressInfo).port
+      Express.get('/json', (_, res) => {
+        analysis.unpkg_node_modules()
+        analysis.printJsonBash()
+        res.send({
+          state: 200,
+        })
+      })
+      Express.use('/view', express.static(path.join(__dirname, './public')))
+      const Server = Express.listen(port)
+      const res: {
+        Server: http.Server<typeof IncomingMessage, typeof ServerResponse>
+        Port: number
+      } = {
+        Server: Server,
+        Port: 0,
+      }
+      Server.on('error', (e: any) => {
+        if (e.code === 'EADDRINUSE') {
+          Server.listen()
+          res.Port = (Server.address() as AddressInfo).port
+          resolve(res)
+        }
+      })
+      res.Port = (Server.address() as AddressInfo)?.port
+      if (res.Port) {
         resolve(res)
       }
-    })
-    res.Port = (Server.address() as AddressInfo)?.port
-    if (res.Port) {
-      resolve(res)
+    } catch (e) {
+      reject(e)
     }
   })
 }

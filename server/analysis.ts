@@ -45,7 +45,7 @@ class Analysis {
       this.port = port || config?.port || option?.port
       this.jsonDir = jsonDir || config?.jsonDir || option?.jsonDir
       this.jsonFileName =
-        jsonFileName || config?.jsonFileName || option?.jsonDir
+        jsonFileName || config?.jsonFileName || option?.jsonFileName
     } else {
       this.root =
         (root ? path.join(rootPath, root) : '') ||
@@ -53,13 +53,19 @@ class Analysis {
       this.prod = prod || option?.prod
       this.deep = deep || option?.deep
       this.jsonDir = jsonDir || option?.jsonDir
-      this.jsonFileName = jsonFileName || option?.jsonDir
+      this.jsonFileName = jsonFileName || option?.jsonFileName
     }
     const unpkg = this.unpkg(this.root)
     if (!unpkg) {
       throw new Error(
-        '请设置正确的路径，保证路径下含有node_modules和package.json',
+        '请设置正确的工作路径，保证路径下含有node_modules和package.json',
       )
+    }
+    if (!this.jsonFileName.endsWith('.json')) {
+      throw new Error('请设置正确的json输出文件名，文件名必须以.json结尾')
+    }
+    if (this.deep <= 0) {
+      throw new Error('请设置正确的分析深度deep，必须>0')
     }
     this.analysisTreeStore.dependencies = unpkg?.dependencies || []
     this.analysisTreeStore.devDependencies = unpkg?.devDependencies || []
@@ -265,17 +271,31 @@ class Analysis {
   public versionMatch(pkgVersion: string, version: string): boolean {
     return semver.satisfies(version, pkgVersion)
   }
+  /**
+   *
+   * @param root
+   * @param jsonDir
+   * @param jsonFileName
+   */
   public printJSON(
     root: string = this.root,
     jsonDir: string = this.jsonDir,
     jsonFileName: string = this.jsonFileName,
   ) {
     const output = path.join(root, jsonDir, jsonFileName)
+    fs.mkdirSync(path.join(root, jsonDir), { recursive: true })
     fs.writeFileSync(output, JSON.stringify(this.echartsFormatData))
   }
+  /**
+   *
+   * @param fullPath
+   */
   public printJsonBash(
     fullPath: string = path.join(this.jsonDir, this.jsonFileName),
   ) {
+    fs.mkdirSync(path.parse(path.join(this.root, fullPath)).dir, {
+      recursive: true,
+    })
     fs.writeFileSync(
       path.join(this.root, fullPath),
       JSON.stringify(this.echartsFormatData),

@@ -1,4 +1,6 @@
 {
   "root": ".",
-  "prod": false
+  "prod": false,
+  "jsonDir": "./JSON",
+  "jsonFileName": "JSON.json"
 }

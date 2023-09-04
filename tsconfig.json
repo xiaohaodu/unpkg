@@ -29,18 +29,16 @@
     "outDir": "./package/",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"],
-      "lib/*": ["lib/*"]
+      "@/*": ["src/*"]
     }
   },
   "include": [
     "types/**/*",
-    "lib/**/*",
     "bin/**/*",
     "src/**/*",
     "server/**/*",
-    "package.json",
-    "test/analysis.test"
+    "test/**/*",
+    "package.json"
   ],
   "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"],
   "ts-node": { "esm": true },

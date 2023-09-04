@@ -35,76 +35,46 @@ program
   .option('-a, --analyse', '开始分析,网页展示')
   .option('-port, --port', '设置端口号')
   .option(
-    '-json, --json <path>',
+    '-json, --json [path]',
     '开始分析,输出json文件展示,<path>为可选项:设置json文件输出路径',
   )
   .action(async () => {
-    const option = program.opts()
-    // console.log(option)
+    try {
+      const option = program.opts()
+      // console.log(option)
 
-    if (Reflect.ownKeys(option).length === 0) {
-      program.outputHelp()
-      console.log(
-        '\r\n' +
-          figlet.textSync('npm-unpkg', {
-            font: 'Ghost',
-            horizontalLayout: 'default',
-            verticalLayout: 'default',
-            whitespaceBreak: true,
-          }),
-      )
-    } else {
-      if (option?.analyse && option?.json) {
-        const { Port } = await generateServer(
-          option?.root,
-          option?.prod,
-          option?.deep,
-          option?.port,
+      if (Reflect.ownKeys(option).length === 0) {
+        program.outputHelp()
+        console.log(
+          '\r\n' +
+            figlet.textSync('npm-unpkg', {
+              font: 'Ghost',
+              horizontalLayout: 'default',
+              verticalLayout: 'default',
+              whitespaceBreak: true,
+            }),
         )
-        if (!option.json.endsWith('.json')) {
-          console.log(
-            chalk.red(
-              '请输入正确的json文件路径，路径需要以.json文件结尾，例如：unpkg.json',
-            ),
-          )
-        } else {
-          open(`http://localhost:${Port}/view`)
-          await axios.get(`http://localhost:${Port}/json`, {
-            params: {
-              json: option.json,
-            },
-          })
-        }
-      } else if (option?.analyse) {
-        const { Port } = await generateServer(
-          option?.root,
-          option?.prod,
-          option?.deep,
-          option?.port,
-        )
-        open(`http://localhost:${Port}/view`)
-      } else if (option?.json) {
+      } else {
         const { Server, Port } = await generateServer(
           option?.root,
           option?.prod,
           option?.deep,
           option?.port,
+          option.json === true ? '' : path.parse(option.json || '').dir,
+          option.json === true ? '' : option.json,
         )
-        if (!option.json.endsWith('.json')) {
-          console.log(
-            chalk.red(
-              '请输入正确的json文件路径，路径需要以.json文件结尾，例如：unpkg.json',
-            ),
-          )
-        } else {
-          await axios.get(`http://localhost:${Port}/json`, {
-            params: {
-              json: option.json,
-            },
-          })
+        if (option?.analyse && option?.json) {
+          open(`http://localhost:${Port}/view`)
+          await axios.get(`http://localhost:${Port}/json`)
+        } else if (option?.analyse) {
+          open(`http://localhost:${Port}/view`)
+        } else if (option?.json) {
+          await axios.get(`http://localhost:${Port}/json`)
+          Server.close()
         }
-        Server.close()
       }
+    } catch (error) {
+      console.log(chalk.red(error))
     }
   })
 
