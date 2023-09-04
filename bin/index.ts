@@ -36,7 +36,7 @@ program
   .option('-port, --port', '设置端口号')
   .option(
     '-json, --json [path]',
-    '开始分析,输出json文件展示,<path>为可选项:设置json文件输出路径',
+    '开始分析,输出json文件展示,[path]为可选项:设置json文件输出路径,如果不加path则按照json文件配置输出',
   )
   .action(async () => {
     try {

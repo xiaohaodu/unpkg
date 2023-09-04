@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import option from './option.js'
+import { config as option } from './config.js'
 import semver from 'semver'
 /**
  * @description npm包分析对象，目前支持解析通过npm install命令下载的node_modules
@@ -29,12 +29,19 @@ class Analysis {
     jsonFileName?: string,
   ) {
     const rootPath = fs.realpathSync(process.cwd(), option.encoding)
-    const isExist = fs.existsSync(path.join(rootPath, option.configFileName))
-    if (isExist) {
-      const data = fs.readFileSync(path.join(rootPath, option.configFileName), {
-        encoding: option.encoding,
-      })
+
+    const isExistJsonConfig = fs.existsSync(
+      path.join(rootPath, option.configFileNameJson),
+    )
+    if (isExistJsonConfig) {
+      const data = fs.readFileSync(
+        path.join(rootPath, option.configFileNameJson),
+        {
+          encoding: option.encoding,
+        },
+      )
       const config = JSON.parse(data)
+
       this.root =
         (root ? path.join(rootPath, root) : '') ||
         (config?.root
