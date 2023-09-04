@@ -38,8 +38,7 @@
     "src/**/*",
     "server/**/*",
     "test/**/*",
-    "package.json",
-    "server/unpkg.js"
+    "package.json"
   ],
   "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"],
   "ts-node": { "esm": true },
