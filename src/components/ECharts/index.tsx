@@ -2,51 +2,84 @@ import { unpkgRequest /** , unpkgRequestSample*/ } from '@/api/unpkg.js'
 import React, { useEffect, useRef, useState } from 'react'
 import * as echarts from 'echarts'
 import './index.scss'
-import { colorStaticStore } from '@/utils'
+// import { colorStaticStore } from '@/utils'
+// function getLevelOption() {
+//   const levelOption: Array<any> = [
+//     {
+//       itemStyle: {
+//         borderColor: '#777',
+//         borderWidth: 0,
+//         gapWidth: 1,
+//       },
+//       upperLabel: {
+//         show: false,
+//       },
+//     },
+//     {
+//       itemStyle: {
+//         borderColor: '#555',
+//         borderWidth: 5,
+//         gapWidth: 1,
+//       },
+//       emphasis: {
+//         itemStyle: {
+//           borderColor: '#ddd',
+//         },
+//       },
+//     },
+//   ]
+//   for (let i = 2; i < colorStaticStore.length; i += 2) {
+//     levelOption.push({
+//       colorSaturation: [0.35, 0.5],
+//       itemStyle: {
+//         color: colorStaticStore[i],
+//         borderColor: colorStaticStore[i + 1],
+//         borderWidth: 5,
+//         gapWidth: 1,
+//         borderColorSaturation: 0.6,
+//       },
+//     })
+//   }
+//   return levelOption
+// }
+function getLevelOptionDefault() {
+  return [
+    {
+      itemStyle: {
+        borderColor: '#777',
+        borderWidth: 0,
+        gapWidth: 1,
+      },
+      upperLabel: {
+        show: false,
+      },
+    },
+    {
+      itemStyle: {
+        borderColor: '#555',
+        borderWidth: 5,
+        gapWidth: 1,
+      },
+      emphasis: {
+        itemStyle: {
+          borderColor: '#ddd',
+        },
+      },
+    },
+    {
+      colorSaturation: [0.35, 0.5],
+      itemStyle: {
+        borderWidth: 5,
+        gapWidth: 1,
+        borderColorSaturation: 0.6,
+      },
+    },
+  ]
+}
 function Echarts(): React.JSX.Element {
   type EChartsOption = echarts.EChartsOption
   const [data, setData] = useState<any>([])
   const renderRef = useRef(false)
-  function getLevelOption() {
-    const levelOption: Array<any> = [
-      {
-        itemStyle: {
-          borderColor: '#777',
-          borderWidth: 0,
-          gapWidth: 1,
-        },
-        upperLabel: {
-          show: false,
-        },
-      },
-      {
-        itemStyle: {
-          borderColor: '#555',
-          borderWidth: 5,
-          gapWidth: 1,
-        },
-        emphasis: {
-          itemStyle: {
-            borderColor: '#ddd',
-          },
-        },
-      },
-    ]
-    for (let i = 2; i < colorStaticStore.length; i += 2) {
-      levelOption.push({
-        colorSaturation: [0.35, 0.5],
-        itemStyle: {
-          color: colorStaticStore[i],
-          borderColor: colorStaticStore[i + 1],
-          borderWidth: 5,
-          gapWidth: 1,
-          borderColorSaturation: 0.6,
-        },
-      })
-    }
-    return levelOption
-  }
-
   const chartDom = useRef<HTMLElement>()
   const myChart = useRef<echarts.ECharts>()
   const useECharts = () => {
@@ -91,7 +124,7 @@ function Echarts(): React.JSX.Element {
           itemStyle: {
             borderColor: '#fff',
           },
-          levels: getLevelOption(),
+          levels: getLevelOptionDefault(),
           data: data,
         },
       ],
@@ -101,7 +134,6 @@ function Echarts(): React.JSX.Element {
         return
       }
       renderRef.current = true
-      console.log('初始化')
       chartDom.current = document.getElementById('echarts')!
       myChart.current = echarts.init(chartDom.current)
     }, [])
@@ -114,10 +146,6 @@ function Echarts(): React.JSX.Element {
     myChart.current && myChart.current.hideLoading()
   }, [option])
   useEffect(() => {
-    // unpkgRequestSample().then((res) => {
-    //   console.log(res.data)
-    //   setData(res.data)
-    // })
     unpkgRequest().then((res) => {
       const { data } = res
       console.log(data)

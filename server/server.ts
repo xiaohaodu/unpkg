@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url'
 import { AddressInfo } from 'node:net'
 import { IncomingMessage, ServerResponse } from 'node:http'
 import http from 'http'
+import chalk from 'chalk'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const Express = express()
 
@@ -71,4 +72,23 @@ export function generateServer(
       reject(e)
     }
   })
+}
+export async function generateServerStart(
+  root?: string,
+  prod?: boolean,
+  deep?: number,
+  port?: number,
+  jsonDir?: string,
+  jsonFileName?: string,
+) {
+  const start = await generateServer(
+    root,
+    prod,
+    deep,
+    port,
+    jsonDir,
+    jsonFileName,
+  )
+  console.log(chalk.blue(`http://localhost:${start.Port}/view`))
+  return start
 }

@@ -3,9 +3,9 @@
   "version": "1.0.11-alpha",
   "type": "module",
   "scripts": {
-    "dev": "tsc -w | nodemon package/server/index.js | vite",
-    "client": "vite",
-    "server": "tsc -w | nodemon package/server/index.js",
+    "dev": "tsc -w | vite build | nodemon package/server/start.js",
+    "client": "vite build",
+    "server": "tsc -w | nodemon package/server/start.js",
     "build": "tsc && vite build",
     "build:publish": "npm run build && npm publish",
     "build:link": "npm run build && npm link",

@@ -1,3 +1,3 @@
-export * as Analyser from './analysis'
-export { generateServer } from './server'
-export { config as defaultConfig, defineUnpkgConfig } from './config'
+export * as Analyser from './analysis.js'
+export { generateServer } from './server.js'
+export { config as defaultConfig, defineUnpkgConfig } from './config.js'

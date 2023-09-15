@@ -65,9 +65,11 @@ program
         )
         if (option?.analyse && option?.json) {
           open(`http://localhost:${Port}/view`)
+          console.log(chalk.blue(`http://localhost:${Port}/view`))
           await axios.get(`http://localhost:${Port}/json`)
         } else if (option?.analyse) {
           open(`http://localhost:${Port}/view`)
+          console.log(chalk.blue(`http://localhost:${Port}/view`))
         } else if (option?.json) {
           await axios.get(`http://localhost:${Port}/json`)
           Server.close()
