@@ -1,31 +1,65 @@
 declare namespace Analyser {
-  type treeObjectNodeList = {
-    dependencies: treeObjectNode[]
-    devDependencies: treeObjectNode[]
-    version: string
+  type TreeNode = {
+    node?: TreeNodeInfo
+    analysis?: TreeAnalyser
   }
-  // Map<treeObjectNode, treeAnalyser>
-  type treeNode = {
-    node?: treeObjectNode
-    analysis?: treeAnalyser
+  type TreeAnalyser = {
+    dependencies?: TreeNodeInfo[]
+    devDependencies?: TreeNodeInfo[]
+    dependencyTree?: Array<TreeNode>
+    devDependencyTree?: Array<TreeNode>
   }
-  type treeAnalyser = {
-    // string, treeMapNode | treeObjectNode
-    dependencies?: treeObjectNode[]
-    devDependencies?: treeObjectNode[]
-    dependencyTree?: Array<treeNode>
-    devDependencyTree?: Array<treeNode>
-  }
-  type treeObjectNode = {
+  type TreeNodeInfo = {
     name: string
     version: string
   }
-  type treeFullPath = {
-    depend: {
-      name: string
-      version: string
-    }
+  type TreeNodeAnalysis = {
+    dependencies: TreeNodeInfo[]
+    devDependencies: TreeNodeInfo[]
+    version: string
+    size: number
+  }
+  type TreeFullPath = {
+    depend: TreeNodeInfo
     fullPath: string
   }
-  type foundStore = Array<string>
+  type FoundTreeStore = Array<string>
+  //上述为处理中间所需数据结构
+
+  //  tree数据展示格式化类型
+  type TreeData = Array<{
+    name: string
+    version?: string
+    value?: number
+    path?: string
+    children: TreeData
+  }>
+
+  /**—————————————————————————————————————————————————— */
+
+  // npm数据展示格式化类型
+  type NpmNode = {
+    color: string
+    label: string
+    attributes: object
+    y: number
+    x: number
+    id: string
+    size: number
+  }
+  // npm数据展示格式化类型
+  type NpmEdge = {
+    sourceID: string
+    attributes: object
+    targetID: string
+    size: number
+  }
+  // npm数据展示格式化类型
+  type NpmAnalyser = {
+    nodes: Array<NpmNode>
+    edges: Array<NpmEdge>
+  }
+
+  //
+  type FoundNpmStore = Array<Array<number>>
 }

@@ -91,15 +91,12 @@ function Echarts(): React.JSX.Element {
 
       tooltip: {
         formatter: function (info: any) {
-          console.log(info)
-
           const treePathInfo = info.treePathInfo
           const treePath = []
 
           for (let i = 1; i < treePathInfo.length; i++) {
             treePath.push(treePathInfo[i].name)
           }
-
           return [
             '<div class="tooltip-title">' +
               echarts.format.encodeHTML(treePath.join('/')) +

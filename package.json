@@ -3,8 +3,8 @@
   "version": "1.0.11-alpha",
   "type": "module",
   "scripts": {
-    "dev": "tsc -w | vite build | nodemon package/server/start.js",
-    "client": "vite build",
+    "dev:hot": "tsc -w | vite build | nodemon --config nodemon.json package/server/start.js",
+    "dev:cool": "nodemon --config nodemon.json package/server/start.js",
     "server": "tsc -w | nodemon package/server/start.js",
     "build": "tsc && vite build",
     "build:publish": "npm run build && npm publish",
@@ -51,6 +51,7 @@
     "@types/node": "^20.5.3",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@types/semver": "^7.5.5",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.0.3",
