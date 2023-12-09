@@ -37,9 +37,22 @@ export function generateServer(
         jsonDir,
         jsonFileName,
       )
-      Express.get('/data', (_, res) => {
+      Express.get('/TreeChunkData', (_, res) => {
         analysis.unpkg_node_modules()
-        res.send(JSON.stringify(analysis.echartsFormatData))
+        res.send(JSON.stringify(analysis.echartsTreeChunkData))
+      })
+      Express.get('/NpmData', (_, res) => {
+        analysis.unpkg_node_modules()
+        res.send(JSON.stringify(analysis.analysisNpmData))
+      })
+      Express.get('/TreeLineData', (_, res) => {
+        analysis.unpkg_node_modules()
+        res.send(
+          JSON.stringify({
+            name: 'root',
+            children: analysis.echartsTreeChunkData,
+          }),
+        )
       })
       Express.get('/json', (_, res) => {
         analysis.unpkg_node_modules()

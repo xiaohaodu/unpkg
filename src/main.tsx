@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './views/App'
+import App from './App'
 import 'default-passive-events'
 import './styles/global.scss'
 import 'normalize.css'

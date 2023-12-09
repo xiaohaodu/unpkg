@@ -26,20 +26,21 @@ class Analysis {
     dependencyTree: [],
     devDependencyTree: [],
   }
+  public xy = [1920 / 5, 1080 / 60]
+
+  // 已查找到的tree状存储
+  public foundTreeStore: Analyser.FoundTreeStore = []
+  // echarts 状内容
+  public echartsTreeChunkData: Analyser.TreeChunkData = []
   // npm分析图
-  public analysisNpmStore: Analyser.NpmAnalyser = {
+  public analysisNpmData: Analyser.NpmAnalyser = {
     nodes: [],
     edges: [],
   }
-  // 已查找到的tree状存储
-  public foundTreeStore: Analyser.FoundTreeStore = []
-  // 已查找到的npm状存储
-  public foundNpmStore: Analyser.FoundNpmStore = []
-
-  // echarts 状内容
-  public echartsFormatData: Analyser.TreeData = []
-
+  public analysisNpmStore: Analyser.FoundNpmLevelStore = []
   public pkgUtil: 'npm' | 'pnpm' = 'npm'
+
+  public pkgNodeRange: number = 5
 
   public constructor(
     root?: string,
@@ -101,12 +102,12 @@ class Analysis {
     this.analysisTreeStore.devDependencies = unpkg?.devDependencies || []
 
     //格式化展示数据的初始化，便于后面数据处理后的挂载，用于直接返回前端渲染图表-格式相对固定，部分可灵活修改
-    this.echartsFormatData[0] = {
+    this.echartsTreeChunkData[0] = {
       name: 'dependencies',
       children: [],
     }
     if (!this.prod) {
-      this.echartsFormatData[1] = {
+      this.echartsTreeChunkData[1] = {
         name: 'devDependencies',
         children: [],
       }
@@ -124,7 +125,9 @@ class Analysis {
       const data = fs.readFileSync(path.join(dirPath, 'package.json'), {
         encoding: option.encoding,
       })
-      const size = readDirOrFileSize(dirPath)
+      //保留三位小数
+      const size =
+        Math.floor((readDirOrFileSize(dirPath) / Math.pow(2, 20)) * 1000) / 1000
       const packageJson = JSON.parse(data)
       const { dependencies, devDependencies, version } = packageJson
       return {
@@ -148,13 +151,13 @@ class Analysis {
    * @param dependencyTree 待挂载数据的MapTree——————便于处理数据，保存处理内容
    * @param dependencies 待解包的依赖列表对象
    * @param fullPath 可选 为undefined时为初次解包
-   * @param current 可选 当前解包进度,待挂载数据的TreeData————展示数据的格式化，直接“输出”
+   * @param current 可选 当前解包进度,待挂载数据的TreeChunkData————展示数据的格式化，直接“输出”
    */
   public unpkg_dependencies(
     dependencyTree: Analyser.TreeNode[],
     dependencies: Analyser.TreeNodeInfo[],
     fullPath?: Analyser.TreeFullPath,
-    current?: Analyser.TreeData,
+    current?: Analyser.TreeChunkData,
   ): void {
     for (const { name, version } of dependencies) {
       if (!this.foundTreeStore.includes(name + version)) {
@@ -177,32 +180,55 @@ class Analysis {
             fullPath: (fullPath?.fullPath || '.') + '/' + name,
           }
           dependencyTree.push({ node: parentNode, analysis: analysis })
-          const currentChildren: Analyser.TreeData = []
+          const currentChildren: Analyser.TreeChunkData = []
           current?.push({
             ...parentNode,
             value: unpkg.size,
             path: currentFullPath.fullPath,
             children: currentChildren,
           })
-          const nameToNumber = parseInt(
-            name
-              .split('')
-              .reduce((pr, cu) =>
-                (pr.charCodeAt(0) + cu.charCodeAt(0)).toString(),
-              ),
-          )
+          const nameToNumber =
+            parseInt(
+              name
+                .split('')
+                .reduce((pr, cu) =>
+                  (pr.charCodeAt(0) + cu.charCodeAt(0)).toString(),
+                ),
+            ) *
+            (Math.random() + 1) *
+            1000
           const nameToNumberString = nameToNumber.toString(16).substring(0, 5)
-          this.analysisNpmStore.nodes.push({
+          const fullPathList = fullPath?.fullPath.split('/') || []
+          for (let i = 0; i < fullPathList.length; i++) {
+            if (fullPathList[i][0] === '@') {
+              fullPathList[i] += '/' + fullPathList[i + 1]
+              fullPathList.splice(i + 1, 1)
+            }
+          }
+          this.analysisNpmData.nodes.push({
             color: '#' + nameToNumberString.padStart(6, nameToNumberString),
             label: name + ' version: ' + version,
             attributes: {},
-            y: 0,
-            x: 0,
+            y: (() => {
+              if (this.analysisNpmStore[fullPathList.length]) {
+                return (
+                  ++this.analysisNpmStore[fullPathList.length] * this.xy[1] +
+                  unpkg.size
+                )
+              } else {
+                return (
+                  (this.analysisNpmStore[fullPathList.length] = 1) *
+                    this.xy[1] +
+                  unpkg.size
+                )
+              }
+            })(),
+            x: (fullPathList.length + 1) * this.xy[0] + unpkg.size,
             id: name + ' version: ' + version,
             size: unpkg.size,
           })
           if (fullPath) {
-            this.analysisNpmStore.edges.push({
+            this.analysisNpmData.edges.push({
               sourceID:
                 fullPath?.depend.name + ' version: ' + fullPath.depend.version,
               attributes: {},
@@ -269,7 +295,7 @@ class Analysis {
           undefined,
         )
         if (!unpkg) {
-          console.log(
+          console.error(
             'not found',
             dependencyKey,
             dependencyVersion,
@@ -362,21 +388,19 @@ class Analysis {
       this.analysisTreeStore.dependencyTree as Analyser.TreeNode[],
       this.analysisTreeStore.dependencies as Analyser.TreeNodeInfo[],
       undefined,
-      this.echartsFormatData[0].children,
+      this.echartsTreeChunkData[0].children,
     )
     if (!this.prod) {
       this.unpkg_dependencies(
         this.analysisTreeStore.devDependencyTree as Analyser.TreeNode[],
         this.analysisTreeStore.devDependencies as Analyser.TreeNodeInfo[],
         undefined,
-        this.echartsFormatData[1].children,
+        this.echartsTreeChunkData[1].children,
       )
     }
   }
 
-  public dataToTreeAnalyser(): void {
-    // 集成在unpkg函数中
-  }
+  public dataToTreeAnalyser(): void {}
   public dataToNpmAnalyser(): void {}
   /**
    *
@@ -400,7 +424,7 @@ class Analysis {
   ) {
     const output = path.join(root, jsonDir, jsonFileName)
     fs.mkdirSync(path.join(root, jsonDir), { recursive: true })
-    fs.writeFileSync(output, JSON.stringify(this.echartsFormatData))
+    fs.writeFileSync(output, JSON.stringify(this.echartsTreeChunkData))
   }
   /**
    *
@@ -414,7 +438,7 @@ class Analysis {
     })
     fs.writeFileSync(
       path.join(this.root, fullPath),
-      JSON.stringify(this.echartsFormatData),
+      JSON.stringify(this.echartsTreeChunkData),
     )
   }
 }

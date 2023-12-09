@@ -1,1 +1,1 @@
-declare namespace global {}
+type EChartsOption = echarts.EChartsOption

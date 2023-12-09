@@ -27,12 +27,12 @@ declare namespace Analyser {
   //上述为处理中间所需数据结构
 
   //  tree数据展示格式化类型
-  type TreeData = Array<{
+  type TreeChunkData = Array<{
     name: string
     version?: string
     value?: number
     path?: string
-    children: TreeData
+    children: TreeChunkData
   }>
 
   /**—————————————————————————————————————————————————— */
@@ -60,6 +60,6 @@ declare namespace Analyser {
     edges: Array<NpmEdge>
   }
 
-  //
-  type FoundNpmStore = Array<Array<number>>
+  // npm store levels
+  type FoundNpmLevelStore = Array<number>
 }

@@ -3,14 +3,15 @@
   "version": "1.0.11-alpha",
   "type": "module",
   "scripts": {
+    "dev": "vite",
     "dev:hot": "tsc -w | vite build | nodemon --config nodemon.json package/server/start.js",
     "dev:cool": "nodemon --config nodemon.json package/server/start.js",
-    "server": "tsc -w | nodemon package/server/start.js",
+    "serve": "tsc -w | nodemon --config nodemon.json package/server/start.js",
     "build": "tsc && vite build",
     "build:publish": "npm run build && npm publish",
     "build:link": "npm run build && npm link",
     "test": "vitest",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --ext ts,tsx,json --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "prepare": "husky install"
   },
@@ -27,6 +28,9 @@
     "npm-unpkg": "./package/bin/index.js"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.2.6",
+    "@reduxjs/toolkit": "^2.0.1",
+    "antd": "^5.12.1",
     "axios": "^1.4.0",
     "chalk": "^5.3.0",
     "commander": "^11.0.0",
@@ -40,9 +44,12 @@
     "open": "^9.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router": "^6.20.1",
+    "react-router-dom": "^6.20.1",
     "semver": "^7.5.4"
   },
   "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^17.7.0",
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
@@ -55,7 +62,6 @@
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.0.3",
-    "commitlint": "^17.7.1",
     "eslint": "^8.45.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
