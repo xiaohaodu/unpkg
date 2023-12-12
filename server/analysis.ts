@@ -82,7 +82,7 @@ class Analysis {
       this.jsonDir = jsonDir || option?.jsonDir
       this.jsonFileName = jsonFileName || option?.jsonFileName
     }
-    const unpkg = this.unpkg(this.root)
+    const unpkg = this.unpkg(this.root, true)
     if (fs.existsSync(path.join(this.root, 'node_modules/.pnpm'))) {
       this.pkgUtil = 'pnpm'
     }
@@ -118,7 +118,10 @@ class Analysis {
    * @param dirPath package.json 文件路径(包路径)
    * @returns Analyser.TreeNodeAnalysis
    */
-  public unpkg(dirPath: string): Analyser.TreeNodeAnalysis | null {
+  public unpkg(
+    dirPath: string,
+    isRoot = false,
+  ): Analyser.TreeNodeAnalysis | null {
     if (!fs.existsSync(path.join(dirPath, 'package.json'))) {
       return null
     } else {
@@ -126,8 +129,10 @@ class Analysis {
         encoding: option.encoding,
       })
       //保留三位小数
-      const size =
-        Math.floor((readDirOrFileSize(dirPath) / Math.pow(2, 20)) * 1000) / 1000
+      const size = isRoot
+        ? 1
+        : Math.floor((readDirOrFileSize(dirPath) / Math.pow(2, 20)) * 1000) /
+          1000
       const packageJson = JSON.parse(data)
       const { dependencies, devDependencies, version } = packageJson
       return {

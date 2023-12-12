@@ -10,7 +10,8 @@
     "build": "tsc && vite build",
     "build:publish": "npm run build && npm publish",
     "build:link": "npm run build && npm link",
-    "test": "vitest",
+    "test:hot": "vitest watch",
+    "test:cool": "vitest run",
     "lint": "eslint . --ext ts,tsx,json --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "prepare": "husky install"
@@ -44,6 +45,7 @@
     "open": "^9.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-error-boundary": "^4.0.11",
     "react-router": "^6.20.1",
     "react-router-dom": "^6.20.1",
     "semver": "^7.5.4"

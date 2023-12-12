@@ -61,9 +61,6 @@ function EchartsNpm(): React.JSX.Element {
   const useECharts = () => {
     const option: EChartsOption = getOptionDefault(json)
     useEffect(() => {
-      if (renderRef.current) {
-        return
-      }
       renderRef.current = true
       chartDom.current = document.getElementById('echarts')!
       myChart.current = echarts.init(chartDom.current)

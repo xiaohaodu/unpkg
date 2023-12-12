@@ -61,7 +61,20 @@ export function generateServer(
           state: 200,
         })
       })
-      Express.use('/view', express.static(path.join(__dirname, './public')))
+
+      Express.use(
+        '/view',
+        express.static(path.join(__dirname, 'public'), {
+          setHeaders: (res, filePath) => {
+            if (filePath.endsWith('.js')) {
+              res.set('Content-Type', 'application/javascript; charset=utf-8')
+            } else if (filePath.endsWith('.css')) {
+              res.set('Content-Type', 'text/css; charset=utf-8')
+            }
+          },
+        }),
+      )
+
       const Server = Express.listen(port)
       const res: {
         Server: http.Server<typeof IncomingMessage, typeof ServerResponse>

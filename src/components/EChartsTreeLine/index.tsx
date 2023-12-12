@@ -53,9 +53,6 @@ function EchartsTree(): React.JSX.Element {
       ],
     }
     useEffect(() => {
-      if (renderRef.current) {
-        return
-      }
       renderRef.current = true
       chartDom.current = document.getElementById('echarts')!
       myChart.current = echarts.init(chartDom.current)

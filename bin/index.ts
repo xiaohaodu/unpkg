@@ -76,7 +76,7 @@ program
         }
       }
     } catch (error) {
-      console.log(chalk.red(error))
+      console.warn(chalk.red(error))
     }
   })
 

@@ -5,7 +5,7 @@ export const config = {
   configFileNameJson: '.unpkg.json',
   configFileNameJs: 'unpkg.js',
   encoding: <BufferEncoding>'utf8',
-  jsonDir: 'unpkgJSON',
+  jsonDir: 'NPM_UNPKG',
   jsonFileName: 'unpkg.analysis.json',
   port: 3000,
 }
