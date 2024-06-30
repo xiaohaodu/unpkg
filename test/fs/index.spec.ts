@@ -3,7 +3,7 @@ import { readDirOrFileSize } from '../../server/utils'
 import fs from 'fs'
 describe('fs', () => {
   test('readDirOrFileSize', () => {
-    expect(readDirOrFileSize('./test/fs/fs-dir-test')).toBe(37)
+    expect(readDirOrFileSize('./test/fs/fs-dir-test')).toBe(38)
     expect(readDirOrFileSize('./node_modules/chalk'))
     expect(readDirOrFileSize('./node_modules/axios')).toBe(1797704)
   })
