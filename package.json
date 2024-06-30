@@ -24,6 +24,10 @@
     "type": "git",
     "url": "https://github.com/xiaohaodu/unpkg"
   },
+  "engines": {
+    "node": "18.18.1",
+    "pnpm": "9.3.0"
+  },
   "bin": {
     "unpkg": "./package/bin/index.js",
     "npm-unpkg": "./package/bin/index.js"
